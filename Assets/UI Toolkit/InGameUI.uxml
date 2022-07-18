@@ -1,0 +1,24 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="GameOverLightbox" style="height: 100%; background-color: rgba(0, 0, 0, 0.68); justify-content: center; align-items: center; display: none; position: absolute; width: 100%;">
+        <ui:VisualElement name="Modal" style="width: auto; align-items: center; margin-top: -64px;">
+            <ui:Label text="PAUSED" display-tooltip-when-elided="true" name="ResultLabel" style="-unity-text-align: upper-center; font-size: 72px; color: rgb(255, 255, 255); -unity-font-style: bold; letter-spacing: -2px;" />
+            <ui:Button name="PlayAgainButton" text="RESTART" display-tooltip-when-elided="true" style="width: 208px; background-color: rgb(78, 112, 125); -unity-font-style: bold; letter-spacing: -2px; color: rgb(255, 255, 255); margin-top: 8px;" />
+            <ui:Button name="QuitButton" text="QUIT TO DESKTOP" display-tooltip-when-elided="true" style="width: 208px; background-color: rgb(202, 64, 78); -unity-font-style: bold; letter-spacing: -2px; color: rgb(255, 255, 255); margin-top: 8px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="LevelCompleteOverlay" style="height: 100%; background-color: rgba(0, 0, 0, 0.44); justify-content: center; align-items: center; display: none; position: absolute; width: 100%;">
+        <ui:VisualElement name="Modal" style="width: 100%; align-items: center; margin-top: -64px;">
+            <ui:Label text="LEVEL COMPLETE" display-tooltip-when-elided="true" name="LevelComplete" style="-unity-text-align: upper-center; font-size: 72px; color: rgb(255, 255, 255); -unity-font-style: bold; letter-spacing: -4px; width: 100%; background-color: rgb(73, 200, 117);" />
+            <ui:Button name="NextLevelButton" text="Next Level" display-tooltip-when-elided="true" style="width: 208px; background-color: rgb(78, 112, 125); -unity-font-style: bold; letter-spacing: -2px; color: rgb(255, 255, 255); margin-top: 16px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="Tutorial" style="height: 100%; background-color: rgba(0, 0, 0, 0.58); justify-content: center; align-items: center; display: flex; position: absolute; width: 100%;">
+        <ui:VisualElement name="Modal" style="width: 512px; align-items: center; margin-top: 0;">
+            <ui:Label text="DICE COMBAT" display-tooltip-when-elided="true" name="LevelComplete" style="-unity-text-align: upper-center; font-size: 32px; color: rgb(255, 255, 255); -unity-font-style: bold; letter-spacing: -4px; width: 100%; background-color: rgb(73, 200, 117);" />
+            <ui:VisualElement>
+                <ui:Label text="[GOAL]: Deplete your opponent&apos;s home base health before they deplete yours.&#10;&#10;Choose your abilities to be activated on each dice roll. After 3 rolls (or after death) you&apos;re able to edit your ability deck before rolling again. &#10;&#10;When a player dies, the surviving player attacks the opposing player&apos;s home base, dealing their regular attack as damage. The dead player is revived with starting values: 3 HEALTH, 0 DEF, 1 ATK." display-tooltip-when-elided="true" style="color: rgb(0, 0, 0); background-image: none; -unity-background-image-tint-color: rgba(255, 255, 255, 0.87); background-color: rgb(255, 255, 255); white-space: normal; padding-left: 6px; padding-right: 4px; padding-top: 8px; padding-bottom: 8px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; -unity-font-style: normal; font-size: 18px;" />
+            </ui:VisualElement>
+            <ui:Button name="StartGame" text="Play" display-tooltip-when-elided="true" style="width: 208px; background-color: rgb(78, 112, 125); -unity-font-style: bold; letter-spacing: -2px; color: rgb(255, 255, 255); margin-top: 16px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

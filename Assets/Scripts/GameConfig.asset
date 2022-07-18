@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87054f9df6bf4d15828c7f4301c0c158, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: 
+  maxLevel: 3
+  turnDelay: 1
+  attackHomeDelay: 1
+  gameOverDelay: 1
+  numRollsInTurn: 3
+  tooltipHoverDelay: 0.75
+  tooltipEnterTime: 0.1
+  tooltipExitTime: 0
+  defaultHealth: 3
+  defaultAttack: 1
+  defaultDefense: 0
+  maxHealth: 6
+  maxAttack: 5
+  maxDefense: 3
+  minAttack: 1
+  minDefense: -1
+  deathOpacity: 0.5
+  defaultHomeHealth: 2
+  abilityHoverScale: 1.05
+  abilityHoverTime: 0.05
+  deckEditDisabledOpacity: 0.3
+  deckSpaceAbilityHoverScale: 0.9
+  debugKeepUnselectedAbility: 0
+  rollTextDisabledColor: {r: 0.22352943, g: 0.36862746, b: 0.5764706, a: 0.23529412}
+  rollTextUnhoveredColor: {r: 0.22352943, g: 0.36862746, b: 0.5764706, a: 1}
+  rollTextHoveredColor: {r: 0.69803923, g: 0.80784315, b: 0.9647059, a: 1}
+  showAbilityAlphaTime: 1
+  showAbilityTranslateTime: 1
+  showAbilityTranslateDist: 1
+  damageIndicatorFlickerCount: 2
+  damageIndicatorFlickerTime: 0.125
+  damageIndicatorMinAlpha: 0.5
+  fightDelay: 0.5
