@@ -19,12 +19,24 @@ namespace DefaultNamespace {
 
         private int _lastDeckIndex;
 
+        private GameConfig Config => CombatManager.Instance.Config;
+
         public override void ResetDeck() {
             ChooseRandomDeck();
         }
 
         private void Start() {
             ChooseRandomDeck();
+        }
+
+        public override Ability GetAbilityAtIndex(int index) {
+            var ability = base.GetAbilityAtIndex(index);
+
+            if (Config.enemyAbilityOverride != Ability.EMPTY) {
+                ability = Config.enemyAbilityOverride;
+            }
+
+            return ability;
         }
 
         private void SetDeck(Ability[] deck) {

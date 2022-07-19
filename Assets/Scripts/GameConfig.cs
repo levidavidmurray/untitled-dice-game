@@ -3,6 +3,9 @@
 namespace DefaultNamespace {
     [CreateAssetMenu(fileName = "GameConfig", menuName = "Custom/Game Config", order = 0)]
     public class GameConfig : ScriptableObject {
+
+        public Ability enemyAbilityOverride = Ability.EMPTY;
+        
         public int maxLevel = 3;
         public float turnDelay = 1f;
         public float attackHomeDelay = 2f;
@@ -36,8 +39,6 @@ namespace DefaultNamespace {
 
         public float deckSpaceAbilityHoverScale = 0.80f;
 
-        public bool debugKeepUnselectedAbility = false;
-
         public Color rollTextDisabledColor;
         public Color rollTextUnhoveredColor;
         public Color rollTextHoveredColor;
@@ -51,5 +52,19 @@ namespace DefaultNamespace {
         public float damageIndicatorMinAlpha = 0f;
 
         public float fightDelay = 0.25f;
+        public float attackDelayForBuff = 0.3f;
+
+        public float statChangeAnimTime = 0.3f;
+        public AnimationCurve statChangeAnimCurve;
+
+        public float attackAnimTime = 0.3f;
+        public AnimationCurve attackFullAnimCurve;
+        public AnimationCurve attackHalfAnimCurve;
+
+        public int maxDuplicateRolls = 2;
+
+        // debug
+        public bool debugNoDamage = false;
+        public bool debugKeepUnselectedAbility = false;
     }
 }

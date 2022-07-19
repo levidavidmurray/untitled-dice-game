@@ -199,14 +199,12 @@ namespace DefaultNamespace {
         }
         
         public void OnPointerExit(PointerEventData eventData) {
-            print($"OnPointerExit, {eventData.pointerEnter.name}");
             SelectedScale();
             LeanTween.cancel(tooltipShowTweenId);
             HideTooltip();
         }
 
         public void OnPointerMove(PointerEventData eventData) {
-            print("OnPointerMove");
             LeanTween.cancel(tooltipShowTweenId);
             if (tooltipShowing || state == SelectableState.Selecting) return;
             tooltipShowTweenId = LeanTween.delayedCall(Config.tooltipHoverDelay, ShowTooltip).id;

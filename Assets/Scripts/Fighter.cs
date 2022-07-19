@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Com.LuisPedroFonseca.ProCamera2D;
 using DarkTonic.MasterAudio;
 using TMPro;
 using UnityEngine;
@@ -24,13 +25,22 @@ namespace DefaultNamespace {
         public UsedAbility usedAbility;
 
         public TMP_Text HomeHealthDisplay;
+        
+        public RectTransform defenseStatDisplay;
+        public RectTransform attackStatDisplay;
+        public RectTransform healthStatDisplay;
 
         public Fighter Foe;
         
         private CanvasGroup _canvasGroup;
+        private Canvas _canvas;
         public CanvasGroup homeCanvasGroup;
 
+        public Ability activeAbility = Ability.EMPTY;
+
         public RawImage pawnImage;
+
+        private Action onAttackCollision;
 
         private void Awake() {
             // for (int i = 0; i < _Abilities.Length; i++) {
@@ -38,6 +48,7 @@ namespace DefaultNamespace {
             // }
 
             _canvasGroup = transform.Find("Canvas").GetComponent<CanvasGroup>();
+            _canvas = transform.Find("Canvas").GetComponent<Canvas>();
         }
 
         private void Start() {
@@ -51,7 +62,10 @@ namespace DefaultNamespace {
             Revive();
         }
 
-        public Ability GetAbilityAtIndex(int index) => abilityDeck.GetAbilityAtIndex(index);
+        public Ability GetAbilityAtIndex(int index) {
+            activeAbility = abilityDeck.GetAbilityAtIndex(index);
+            return activeAbility;
+        }
 
         public void SetAbilityAtIndex(int index, Ability ability) => abilityDeck.SetAbilityAtIndex(index, ability);
 
@@ -63,6 +77,8 @@ namespace DefaultNamespace {
 
         public bool IsHomeDead => _homeHealth == 0;
 
+        public bool IsAttacking => activeAbility == Ability.Attack;
+
         public void Revive() {
             _Health = Config.defaultHealth;
             _Attack = Config.defaultAttack;
@@ -72,6 +88,20 @@ namespace DefaultNamespace {
             SetOpacity(1);
         }
 
+        private void OnTriggerEnter2D(Collider2D col) {
+            if (!col.CompareTag("Fighter") && !col.CompareTag("Player")) return;
+            
+            // Attack collision
+            onAttackCollision?.Invoke();
+            onAttackCollision = null;
+            activeAbility = Ability.EMPTY;
+
+            // Only want to invoke a single camera shake
+            if (IsPlayer) {
+                ProCamera2DShake.Instance.Shake(0);
+            }
+        }
+
         public int TakeDamage(int dmg) {
             if (dmg <= _Defense) {
                 MasterAudio.PlaySoundAndForget("Negative3");
@@ -79,27 +109,26 @@ namespace DefaultNamespace {
             }
             
             int dmgApplied = dmg - _Defense;
+
             _Health = Mathf.Max(0, _Health - dmgApplied);
 
+            if (Config.debugNoDamage) _Health += dmgApplied;
+            
+            StatChangeEffect(healthStatDisplay);
+
             if (dmgApplied > 0) {
-                DamageFlicker((opacity) => _canvasGroup.alpha = opacity);
-                MasterAudio.PlaySoundAndForget("Sword_Kill");
+                onAttackCollision = () => {
+                    DamageFlicker((opacity) => _canvasGroup.alpha = opacity);
+                    MasterAudio.PlaySoundAndForget("Sword_Kill");
+                };
             }
             else {
-                MasterAudio.PlaySoundAndForget("Negative3");
+                onAttackCollision = () => {
+                    MasterAudio.PlaySoundAndForget("Negative3");
+                };
             }
             
             return _Health;
-        }
-
-        private void DamageFlicker(Action<float> setOpacity) {
-            LeanTween.value(1f, Config.damageIndicatorMinAlpha, Config.damageIndicatorFlickerTime)
-                .setOnUpdate(setOpacity).setLoopPingPong(Config.damageIndicatorFlickerCount)
-                .setOnComplete(() => {
-                    if (IsDead) {
-                        SetOpacity(Config.deathOpacity);
-                    }
-                });
         }
 
         public int TakeHomeDamage(int dmg) {
@@ -113,34 +142,90 @@ namespace DefaultNamespace {
             return _homeHealth;
         }
 
+        public void StatChangeEffect(RectTransform statDisplay) {
+            LeanTween.value(0f, 1f, Config.statChangeAnimTime).setOnUpdate((float value) => {
+                statDisplay.localScale = Vector3.one * Config.statChangeAnimCurve.Evaluate(value);
+            });
+        }
+
+        private void DamageFlicker(Action<float> setOpacity) {
+            LeanTween.value(1f, Config.damageIndicatorMinAlpha, Config.damageIndicatorFlickerTime)
+                .setOnUpdate(setOpacity).setLoopPingPong(Config.damageIndicatorFlickerCount)
+                .setOnComplete(() => {
+                    if (IsDead) {
+                        SetOpacity(Config.deathOpacity);
+                    }
+                });
+        }
+
         public void SetOpacity(float opacity) {
             _canvasGroup.alpha = opacity;
         }
 
         public bool IsReady() => abilityDeck.IsReady();
 
-        public void DecreaseAttack() => _Attack = Mathf.Max(Config.minAttack, _Attack - 1);
+        public void DecreaseAttack() {
+            _Attack = Mathf.Max(Config.minAttack, _Attack - 1);
+            StatChangeEffect(attackStatDisplay);
+        }
 
-        public void DecreaseDefense() => _Defense = Mathf.Max(Config.minDefense, _Defense - 1);
+        public void DecreaseDefense() {
+            _Defense = Mathf.Max(Config.minDefense, _Defense - 1);
+            StatChangeEffect(defenseStatDisplay);
+        }
+
+        public bool IsPlayer => this == CombatManager.Instance.PlayerFighter; 
+
+        private void AttackEnemy() {
+
+            var origPos = transform.localPosition;
+            int atkDir = IsPlayer ? 1 : -1;
+
+            AnimationCurve attackAnimCurve = Config.attackFullAnimCurve;
+            _canvas.sortingOrder = 4;
+            if (Foe.IsAttacking) {
+                attackAnimCurve = Config.attackHalfAnimCurve;
+                _canvas.sortingOrder = IsPlayer ? 5 : 4;
+            }
+            
+            LeanTween.value(0f, 1f, Config.attackAnimTime).setOnUpdate(value => {
+                var yPos = origPos.y + (attackAnimCurve.Evaluate(value) * atkDir);
+                transform.localPosition = new Vector2(origPos.x, yPos);
+            }).setOnComplete(() => {
+                transform.localPosition = origPos;
+                _canvas.sortingOrder = 3;
+            });
+            
+            Foe.TakeDamage(_Attack);
+        }
+
+        public void UseActiveAbility() {
+            ApplyAbility(activeAbility);
+        }
+
+        public void ShowActiveAbility() {
+            usedAbility.ShowAbility(activeAbility);
+        }
 
         public void ApplyAbility(Ability ability) {
-            
-            usedAbility.ShowAbility(ability);
             
             PlayAbilitySound(ability);
             
             switch (ability) {
                 case Ability.Attack:
-                    Foe.TakeDamage(_Attack);
+                    AttackEnemy();
                     break;
                 case Ability.AttackUp:
                     _Attack = Mathf.Min(Config.maxAttack, _Attack + 1);
+                    StatChangeEffect(attackStatDisplay);
                     break;
                 case Ability.DefenseUp:
                     _Defense = Mathf.Min(Config.maxDefense, _Defense + 1);
+                    StatChangeEffect(defenseStatDisplay);
                     break;
                 case Ability.HealthUp:
                     _Health = Mathf.Min(Config.maxHealth, _Health + 1);
+                    StatChangeEffect(healthStatDisplay);
                     break;
                 case Ability.FoeAttackDown:
                     Foe.DecreaseAttack();

@@ -146,16 +146,15 @@ namespace DefaultNamespace {
             
             print(PlayerFighter);
             print(FoeFighter);
-            
-            int diceRoll = Random.Range(0, 6);
-            diceRoller.UpdateDice(diceRoll + 1);
+
+            int diceRoll = diceRoller.RollDice();
             MasterAudio.PlaySoundAndForget("dice_roll");
 
             yield return new WaitForSeconds(Config.fightDelay);
             Fight(diceRoll);
             
-            print(PlayerFighter);
-            print(FoeFighter);
+            // print(PlayerFighter);
+            // print(FoeFighter);
             
             _RollsToNextTurn--;
             UpdateTurnCounter();
@@ -193,7 +192,7 @@ namespace DefaultNamespace {
                     }
                     
                     // allow change abilities after 3 turns
-                    if (_RollsToNextTurn < 0 || didDie) {
+                    if (_RollsToNextTurn <= 0 || didDie) {
                         _RollsToNextTurn = Config.numRollsInTurn;
                         CurState = GameState.WaitingTurn;
                         UpdateTurnCounter();
@@ -286,13 +285,35 @@ namespace DefaultNamespace {
         }
 
         public void Fight(int diceRoll) {
-            Ability playerAbility = PlayerFighter.GetAbilityAtIndex(diceRoll);
-            Ability foeAbility = FoeFighter.GetAbilityAtIndex(diceRoll);
             
-            PlayerFighter.ApplyAbility(playerAbility);
-            FoeFighter.ApplyAbility(foeAbility);
+            PlayerFighter.GetAbilityAtIndex(diceRoll);
+            FoeFighter.GetAbilityAtIndex(diceRoll);
             
-            print($"[{diceRoll}]: Player ({playerAbility}) | Foe ({foeAbility})");
+            PlayerFighter.ShowActiveAbility();
+            FoeFighter.ShowActiveAbility();
+
+            // Both attacking or both buffing
+            if ((PlayerFighter.IsAttacking && FoeFighter.IsAttacking) || (!PlayerFighter.IsAttacking && !FoeFighter.IsAttacking)) {
+                PlayerFighter.UseActiveAbility();
+                FoeFighter.UseActiveAbility();
+                return;
+            }
+
+            Fighter firstFighter = PlayerFighter;
+            Fighter secondFighter = FoeFighter;
+
+            // Player attacking, Foe buffing
+            // Player waits for Foe buff
+            if (PlayerFighter.IsAttacking) {
+                firstFighter = FoeFighter;
+                secondFighter = PlayerFighter;
+            }
+            
+            firstFighter.UseActiveAbility();
+            
+            // Fighter who is attacking waits for opponent buff
+            LeanTween.delayedCall(Config.attackDelayForBuff, secondFighter.UseActiveAbility);
+            
         }
         
     }

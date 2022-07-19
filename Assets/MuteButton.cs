@@ -12,6 +12,7 @@ public class MuteButton : MonoBehaviour {
     }
 
     public void ToggleMute() {
+        
         isMuted = !isMuted;
 
         var suffix = isMuted ? "muted" : "volume";

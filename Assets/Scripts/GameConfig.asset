@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87054f9df6bf4d15828c7f4301c0c158, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: 
+  enemyAbilityOverride: 2
   maxLevel: 3
   turnDelay: 1
   attackHomeDelay: 1
   gameOverDelay: 1
   numRollsInTurn: 3
-  tooltipHoverDelay: 0.75
+  tooltipHoverDelay: 0.4
   tooltipEnterTime: 0.1
   tooltipExitTime: 0
   defaultHealth: 3
@@ -34,7 +35,6 @@ MonoBehaviour:
   abilityHoverTime: 0.05
   deckEditDisabledOpacity: 0.3
   deckSpaceAbilityHoverScale: 0.9
-  debugKeepUnselectedAbility: 0
   rollTextDisabledColor: {r: 0.22352943, g: 0.36862746, b: 0.5764706, a: 0.23529412}
   rollTextUnhoveredColor: {r: 0.22352943, g: 0.36862746, b: 0.5764706, a: 1}
   rollTextHoveredColor: {r: 0.69803923, g: 0.80784315, b: 0.9647059, a: 1}
@@ -45,3 +45,135 @@ MonoBehaviour:
   damageIndicatorFlickerTime: 0.125
   damageIndicatorMinAlpha: 0.5
   fightDelay: 0.5
+  attackDelayForBuff: 0.5
+  statChangeAnimTime: 0.3
+  statChangeAnimCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 1.3209683
+      outSlope: 1.3209683
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.15236785
+      value: 1.2012731
+      inSlope: 0.20768818
+      outSlope: 0.20768818
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.6563127
+      value: 0.7449047
+      inSlope: -0.081680536
+      outSlope: -0.081680536
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0.74223083
+      outSlope: 0.74223083
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  attackAnimTime: 0.4
+  attackFullAnimCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -1.090033
+      outSlope: -1.090033
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.5023545
+      value: -0.547583
+      inSlope: 8.871281
+      outSlope: 8.871281
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.67642725
+      value: 2.730658
+      inSlope: 5.1967545
+      outSlope: 5.1967545
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -8.439085
+      outSlope: -8.439085
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  attackHalfAnimCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -1.090033
+      outSlope: -1.090033
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.5023545
+      value: -0.547583
+      inSlope: 5.353278
+      outSlope: 5.353278
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.683782
+      value: 1.5926424
+      inSlope: 3.380028
+      outSlope: 3.380028
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -5.036533
+      outSlope: -5.036533
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxDuplicateRolls: 2
+  debugNoDamage: 1
+  debugKeepUnselectedAbility: 0

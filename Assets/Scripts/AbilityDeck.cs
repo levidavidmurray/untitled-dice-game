@@ -10,7 +10,7 @@ namespace DefaultNamespace {
             throw new NotImplementedException();
         }
 
-        public Ability GetAbilityAtIndex(int index) {
+        public virtual Ability GetAbilityAtIndex(int index) {
             return _abilities[index];
         }
 
