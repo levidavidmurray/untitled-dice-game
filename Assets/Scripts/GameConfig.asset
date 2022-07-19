@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87054f9df6bf4d15828c7f4301c0c158, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: 
-  enemyAbilityOverride: 2
+  enemyAbilityOverride: 0
   maxLevel: 3
   turnDelay: 1
   attackHomeDelay: 1
@@ -30,7 +30,7 @@ MonoBehaviour:
   minAttack: 1
   minDefense: -1
   deathOpacity: 0.5
-  defaultHomeHealth: 20
+  defaultHomeHealth: 5
   abilityHoverScale: 1.05
   abilityHoverTime: 0.05
   deckEditDisabledOpacity: 0.3

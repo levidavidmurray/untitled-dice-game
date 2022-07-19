@@ -15,5 +15,8 @@ namespace DefaultNamespace {
         public float attackHomeAnimTime = 0.45f;
         public AnimationCurve attackHomeAnimCurve;
 
+        public float takeDamageTime = 0.4f;
+        public AnimationCurve takeDamageScaleAnimCurve;
+
     }
 }

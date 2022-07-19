@@ -95,6 +95,14 @@ namespace DefaultNamespace {
         public void Die() {
             SetOpacity(Config.deathOpacity);
             _collider.enabled = false;
+            
+            // death sound
+            // if (Foe.IsDead) {
+            //     if (IsPlayer) MasterAudio.PlaySoundAndForget("Player_Hurt");
+            // }
+            // else {
+            //     MasterAudio.PlaySoundAndForget("Player_Hurt");
+            // }
         }
 
         public void SetOpacity(float opacity) {
@@ -131,7 +139,7 @@ namespace DefaultNamespace {
             if (Config.debugNoDamage) _Health += dmgApplied;
             
             if (dmgApplied > 0) {
-                DamageFlicker((opacity) => _canvasGroup.alpha = opacity);
+                DamageFlicker((opacity) => _canvasGroup.alpha = opacity, transform);
                 MasterAudio.PlaySoundAndForget("Sword_Kill");
                 hurtParticles.Play();
                 StatChangeEffect(healthStatDisplay);
@@ -143,7 +151,7 @@ namespace DefaultNamespace {
         public int TakeHomeDamage(int dmg) {
             _homeHealth = Mathf.Max(0, _homeHealth - dmg);
             UpdateStatsDisplay();
-            DamageFlicker(opacity => homeCanvasGroup.alpha = opacity);
+            DamageFlicker(opacity => homeCanvasGroup.alpha = opacity, homeCanvasGroup.transform.parent);
             MasterAudio.PlaySoundAndForget("Sword_Slash");
             
             return _homeHealth;
@@ -166,7 +174,8 @@ namespace DefaultNamespace {
             UpdateStatsDisplay();
         }
 
-        private void DamageFlicker(Action<float> setOpacity) {
+        private void DamageFlicker(Action<float> setOpacity, Transform scaleBody) {
+            // alpha flash
             LeanTween.value(1f, Config.damageIndicatorMinAlpha, Config.damageIndicatorFlickerTime)
                 .setOnUpdate(setOpacity).setLoopPingPong(Config.damageIndicatorFlickerCount)
                 .setOnComplete(() => {
@@ -174,6 +183,11 @@ namespace DefaultNamespace {
                         SetOpacity(Config.deathOpacity);
                     }
                 });
+            // scale flash
+            var origScale = scaleBody.localScale;
+            LeanTween.value(0f, 1f, AnimConfig.takeDamageTime).setOnUpdate((float value) => {
+                scaleBody.localScale = origScale * AnimConfig.takeDamageScaleAnimCurve.Evaluate(value);
+            }).setOnComplete(() => scaleBody.localScale = origScale);
         }
 
         public bool IsReady() => abilityDeck.IsReady();
