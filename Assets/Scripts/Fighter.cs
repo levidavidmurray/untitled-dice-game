@@ -15,6 +15,7 @@ namespace DefaultNamespace {
         [SerializeField] private int _Attack = 1;
         [SerializeField] private int _Defense = 0;
         [SerializeField] private AbilityDeck abilityDeck;
+        [SerializeField] private ParticleSystem hurtParticles;
         
         private int _homeHealth;
 
@@ -34,6 +35,7 @@ namespace DefaultNamespace {
         
         private CanvasGroup _canvasGroup;
         private Canvas _canvas;
+        private CircleCollider2D _collider;
         public CanvasGroup homeCanvasGroup;
 
         public Ability activeAbility = Ability.EMPTY;
@@ -49,6 +51,7 @@ namespace DefaultNamespace {
 
             _canvasGroup = transform.Find("Canvas").GetComponent<CanvasGroup>();
             _canvas = transform.Find("Canvas").GetComponent<Canvas>();
+            _collider = GetComponent<CircleCollider2D>();
         }
 
         private void Start() {
@@ -83,21 +86,33 @@ namespace DefaultNamespace {
             _Health = Config.defaultHealth;
             _Attack = Config.defaultAttack;
             _Defense = Config.defaultDefense;
+            _collider.enabled = true;
             
             UpdateStatsDisplay();
             SetOpacity(1);
         }
 
+        public void Die() {
+            SetOpacity(Config.deathOpacity);
+            _collider.enabled = false;
+        }
+
+        public void SetOpacity(float opacity) {
+            _canvasGroup.alpha = opacity;
+        }
+
         private void OnTriggerEnter2D(Collider2D col) {
-            if (!col.CompareTag("Fighter") && !col.CompareTag("Player")) return;
+            if (!col.CompareTag("Fighter") && !col.CompareTag("Player") && !col.CompareTag("Home")) return;
+
+            if (homeCanvasGroup.transform.parent == col.transform) return;
             
             // Attack collision
             onAttackCollision?.Invoke();
             onAttackCollision = null;
             activeAbility = Ability.EMPTY;
 
-            // Only want to invoke a single camera shake
-            if (IsPlayer) {
+            // Only want to invoke a single camera shake when attacking one another
+            if (IsPlayer || col.CompareTag("Home")) {
                 ProCamera2DShake.Instance.Shake(0);
             }
         }
@@ -105,6 +120,7 @@ namespace DefaultNamespace {
         public int TakeDamage(int dmg) {
             if (dmg <= _Defense) {
                 MasterAudio.PlaySoundAndForget("Negative3");
+                StatChangeEffect(defenseStatDisplay);
                 return _Health;
             }
             
@@ -114,18 +130,11 @@ namespace DefaultNamespace {
 
             if (Config.debugNoDamage) _Health += dmgApplied;
             
-            StatChangeEffect(healthStatDisplay);
-
             if (dmgApplied > 0) {
-                onAttackCollision = () => {
-                    DamageFlicker((opacity) => _canvasGroup.alpha = opacity);
-                    MasterAudio.PlaySoundAndForget("Sword_Kill");
-                };
-            }
-            else {
-                onAttackCollision = () => {
-                    MasterAudio.PlaySoundAndForget("Negative3");
-                };
+                DamageFlicker((opacity) => _canvasGroup.alpha = opacity);
+                MasterAudio.PlaySoundAndForget("Sword_Kill");
+                hurtParticles.Play();
+                StatChangeEffect(healthStatDisplay);
             }
             
             return _Health;
@@ -137,15 +146,24 @@ namespace DefaultNamespace {
             DamageFlicker(opacity => homeCanvasGroup.alpha = opacity);
             MasterAudio.PlaySoundAndForget("Sword_Slash");
             
-            Foe.usedAbility.ShowAbility(Ability.Attack);
-            
             return _homeHealth;
         }
 
+        public void AttackHome(Action onAttackComplete) {
+            _canvas.sortingOrder = 4;
+            ChargeAttackAnim(AnimConfig.attackHomeAnimCurve, AnimConfig.attackHomeAnimTime, onAttackComplete);
+            usedAbility.ShowAbility(Ability.Attack);
+
+            onAttackCollision = () => {
+                Foe.TakeHomeDamage(Attack);
+            };
+        }
+
         public void StatChangeEffect(RectTransform statDisplay) {
-            LeanTween.value(0f, 1f, Config.statChangeAnimTime).setOnUpdate((float value) => {
-                statDisplay.localScale = Vector3.one * Config.statChangeAnimCurve.Evaluate(value);
+            LeanTween.value(0f, 1f, AnimConfig.statChangeAnimTime).setOnUpdate((float value) => {
+                statDisplay.localScale = Vector3.one * AnimConfig.statChangeAnimCurve.Evaluate(value);
             });
+            UpdateStatsDisplay();
         }
 
         private void DamageFlicker(Action<float> setOpacity) {
@@ -156,10 +174,6 @@ namespace DefaultNamespace {
                         SetOpacity(Config.deathOpacity);
                     }
                 });
-        }
-
-        public void SetOpacity(float opacity) {
-            _canvasGroup.alpha = opacity;
         }
 
         public bool IsReady() => abilityDeck.IsReady();
@@ -174,29 +188,36 @@ namespace DefaultNamespace {
             StatChangeEffect(defenseStatDisplay);
         }
 
-        public bool IsPlayer => this == CombatManager.Instance.PlayerFighter; 
+        public bool IsPlayer => this == CombatManager.Instance.PlayerFighter;
 
         private void AttackEnemy() {
-
-            var origPos = transform.localPosition;
-            int atkDir = IsPlayer ? 1 : -1;
-
-            AnimationCurve attackAnimCurve = Config.attackFullAnimCurve;
+            AnimationCurve attackAnimCurve = AnimConfig.attackFullAnimCurve;
+            float attackAnimTime = AnimConfig.attackFullAnimTime;
             _canvas.sortingOrder = 4;
+            
             if (Foe.IsAttacking) {
-                attackAnimCurve = Config.attackHalfAnimCurve;
+                attackAnimCurve = AnimConfig.attackHalfAnimCurve;
+                attackAnimTime = AnimConfig.attackHalfAnimTime;
                 _canvas.sortingOrder = IsPlayer ? 5 : 4;
             }
             
-            LeanTween.value(0f, 1f, Config.attackAnimTime).setOnUpdate(value => {
+            ChargeAttackAnim(attackAnimCurve, attackAnimTime, CombatManager.Instance.OnAbilityComplete);
+            
+            onAttackCollision = () => Foe.TakeDamage(_Attack);
+        }
+
+        private void ChargeAttackAnim(AnimationCurve attackAnimCurve, float attackAnimTime, Action onAnimComplete = null) {
+            var origPos = transform.localPosition;
+            int atkDir = IsPlayer ? 1 : -1;
+            
+            LeanTween.value(0f, 1f, attackAnimTime).setOnUpdate(value => {
                 var yPos = origPos.y + (attackAnimCurve.Evaluate(value) * atkDir);
                 transform.localPosition = new Vector2(origPos.x, yPos);
             }).setOnComplete(() => {
                 transform.localPosition = origPos;
                 _canvas.sortingOrder = 3;
+                onAnimComplete?.Invoke();
             });
-            
-            Foe.TakeDamage(_Attack);
         }
 
         public void UseActiveAbility() {
@@ -237,6 +258,11 @@ namespace DefaultNamespace {
             
             UpdateStatsDisplay();
             Foe.UpdateStatsDisplay();
+
+            if (ability != Ability.Attack) {
+                CombatManager.Instance.OnAbilityComplete();
+            }
+            
         }
 
         void PlayAbilitySound(Ability ability) {
@@ -273,6 +299,8 @@ namespace DefaultNamespace {
         }
 
         private GameConfig Config => CombatManager.Instance.Config;
+
+        private AnimConfig AnimConfig => CombatManager.Instance.AnimConfig;
 
 
     }

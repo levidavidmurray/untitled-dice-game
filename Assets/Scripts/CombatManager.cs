@@ -29,7 +29,11 @@ namespace DefaultNamespace {
 
         public static CombatManager Instance { get; private set; }
 
+        // Number of abilities to complete before end of turn
+        public static int ABILITIES_TO_COMPLETE = 2;
+
         public GameConfig Config;
+        public AnimConfig AnimConfig;
 
         public Fighter PlayerFighter;
         public Fighter FoeFighter;
@@ -42,10 +46,10 @@ namespace DefaultNamespace {
         public bool gameBeaten;
 
         private int _RollsToNextTurn;
+        private int _abilitiesWaitingToComplete = ABILITIES_TO_COMPLETE;
         
         private bool rollIsHovered;
 
-        public Action OnNewTurn;
         public Action<int> OnLevelChange;
 
         private int _currentLevel = 1;
@@ -141,31 +145,32 @@ namespace DefaultNamespace {
         }
 
         public IEnumerator RollDice() {
-            
             CurState = GameState.Playing;
             
-            print(PlayerFighter);
-            print(FoeFighter);
-
             int diceRoll = diceRoller.RollDice();
             MasterAudio.PlaySoundAndForget("dice_roll");
 
             yield return new WaitForSeconds(Config.fightDelay);
             Fight(diceRoll);
             
-            // print(PlayerFighter);
-            // print(FoeFighter);
-            
             _RollsToNextTurn--;
             UpdateTurnCounter();
+        }
 
+        public void OnAbilityComplete() {
+
+            _abilitiesWaitingToComplete--;
+            if (_abilitiesWaitingToComplete > 0) return;
+
+            _abilitiesWaitingToComplete = ABILITIES_TO_COMPLETE;
+            
             var didDie = false;
 
             Fighter attacker = null;
             
             if (PlayerFighter.IsDead) {
                 didDie = true;
-                PlayerFighter.SetOpacity(Config.deathOpacity);
+                PlayerFighter.Die();
                 
                 if (!FoeFighter.IsDead) {
                     attacker = FoeFighter;
@@ -174,7 +179,7 @@ namespace DefaultNamespace {
 
             if (FoeFighter.IsDead) {
                 didDie = true;
-                FoeFighter.SetOpacity(Config.deathOpacity);
+                FoeFighter.Die();
 
                 if (!PlayerFighter.IsDead) {
                     attacker = PlayerFighter;
@@ -191,12 +196,11 @@ namespace DefaultNamespace {
                         PlayerFighter.Revive();
                     }
                     
-                    // allow change abilities after 3 turns
+                    // allow abilities change after 3 turns
                     if (_RollsToNextTurn <= 0 || didDie) {
                         _RollsToNextTurn = Config.numRollsInTurn;
                         CurState = GameState.WaitingTurn;
                         UpdateTurnCounter();
-                        OnNewTurn?.Invoke();
                         return;
                     }
                     
@@ -206,22 +210,21 @@ namespace DefaultNamespace {
             
             if (attacker) {
                 LeanTween.delayedCall(Config.attackHomeDelay, () => {
-                    AttackHome(attacker);
+                    attacker.AttackHome(() => {
+                        if (PlayerFighter.IsHomeDead) {
+                            GameOver(false);
+                            return;
+                        }
 
-                    if (PlayerFighter.IsHomeDead) {
-                        GameOver(false);
-                        return;
-                    }
-
-                    if (FoeFighter.IsHomeDead) {
-                        LevelComplete();
-                        return;
-                    }
-                    
-                    onTurnComplete();
+                        if (FoeFighter.IsHomeDead) {
+                            LevelComplete();
+                            return;
+                        }
+                        
+                        onTurnComplete();
+                    });
                 });
-
-                yield break;
+                return;
             }
             
             onTurnComplete();
@@ -243,7 +246,7 @@ namespace DefaultNamespace {
 
         private void AttackHome(Fighter attacker) {
             Fighter foe = attacker.Foe;
-            foe.TakeHomeDamage(attacker.Attack);
+
         }
 
         private void LevelComplete() {

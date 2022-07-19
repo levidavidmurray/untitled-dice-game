@@ -7,6 +7,7 @@ TagManager:
   - SelectableAbility
   - DeckSpace
   - Fighter
+  - Home
   layers:
   - Default
   - TransparentFX

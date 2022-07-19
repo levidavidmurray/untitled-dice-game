@@ -9,43 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87054f9df6bf4d15828c7f4301c0c158, type: 3}
-  m_Name: GameConfig
+  m_Script: {fileID: 11500000, guid: ca6fecfafe2f4a55b27c604e799c23ad, type: 3}
+  m_Name: AnimConfig
   m_EditorClassIdentifier: 
-  enemyAbilityOverride: 2
-  maxLevel: 3
-  turnDelay: 1
-  attackHomeDelay: 1
-  gameOverDelay: 1
-  numRollsInTurn: 3
-  tooltipHoverDelay: 0.4
-  tooltipEnterTime: 0.1
-  tooltipExitTime: 0
-  defaultHealth: 3
-  defaultAttack: 1
-  defaultDefense: 0
-  maxHealth: 6
-  maxAttack: 5
-  maxDefense: 3
-  minAttack: 1
-  minDefense: -1
-  deathOpacity: 0.5
-  defaultHomeHealth: 20
-  abilityHoverScale: 1.05
-  abilityHoverTime: 0.05
-  deckEditDisabledOpacity: 0.3
-  deckSpaceAbilityHoverScale: 0.9
-  rollTextDisabledColor: {r: 0.22352943, g: 0.36862746, b: 0.5764706, a: 0.23529412}
-  rollTextUnhoveredColor: {r: 0.22352943, g: 0.36862746, b: 0.5764706, a: 1}
-  rollTextHoveredColor: {r: 0.69803923, g: 0.80784315, b: 0.9647059, a: 1}
-  showAbilityAlphaTime: 1
-  showAbilityTranslateTime: 1
-  showAbilityTranslateDist: 1
-  damageIndicatorFlickerCount: 2
-  damageIndicatorFlickerTime: 0.125
-  damageIndicatorMinAlpha: 0.5
-  fightDelay: 0.5
-  attackDelayForBuff: 0.5
   statChangeAnimTime: 0.3
   statChangeAnimCurve:
     serializedVersion: 2
@@ -89,7 +55,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  attackAnimTime: 0.4
+  attackFullAnimTime: 0.4
   attackFullAnimCurve:
     serializedVersion: 2
     m_Curve:
@@ -132,6 +98,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  attackHalfAnimTime: 0.4
   attackHalfAnimCurve:
     serializedVersion: 2
     m_Curve:
@@ -174,6 +141,46 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maxDuplicateRolls: 2
-  debugNoDamage: 0
-  debugKeepUnselectedAbility: 0
+  attackHomeAnimTime: 0.65
+  attackHomeAnimCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: -0.39850202
+      outSlope: -0.39850202
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.5128518
+      value: -0.20437247
+      inSlope: 5.926666
+      outSlope: 5.926666
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.7446909
+    - serializedVersion: 3
+      time: 0.7184347
+      value: 5.239966
+      inSlope: 6.1041107
+      outSlope: 6.1041107
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.4690045
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -18.610126
+      outSlope: -18.610126
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
