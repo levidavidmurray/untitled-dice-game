@@ -18,6 +18,15 @@ namespace DefaultNamespace {
             _abilities[index] = ability;
         }
 
+        public int GetAbilityDeckCount(Ability ability) {
+            int count = 0;
+            foreach (Ability _ability in _abilities) {
+                if (_ability == ability) count++;
+            }
+
+            return count;
+        }
+
         public bool IsReady() {
             foreach (Ability ability in _abilities) {
                 if (ability == Ability.EMPTY) return false;

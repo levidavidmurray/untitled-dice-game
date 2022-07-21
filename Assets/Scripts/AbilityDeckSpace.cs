@@ -13,7 +13,7 @@ namespace DefaultNamespace {
             selectedAbility = _selectedAbility;
             OnAbilityUpdated?.Invoke(selectedAbility ? selectedAbility.ability : Ability.EMPTY);
         }
-        
+
         public void ClearAbility() => SetAbility(null);
 
         public bool HasAbility => selectedAbility != null;

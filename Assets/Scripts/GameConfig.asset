@@ -17,7 +17,9 @@ MonoBehaviour:
   turnDelay: 1
   attackHomeDelay: 1
   gameOverDelay: 1
+  dupeAbilityLimit: 3
   numRollsInTurn: 3
+  autoTurnDelay: 0.4
   tooltipHoverDelay: 0.4
   tooltipEnterTime: 0.1
   tooltipExitTime: 0
@@ -38,12 +40,12 @@ MonoBehaviour:
   rollTextDisabledColor: {r: 0.22352943, g: 0.36862746, b: 0.5764706, a: 0.23529412}
   rollTextUnhoveredColor: {r: 0.22352943, g: 0.36862746, b: 0.5764706, a: 1}
   rollTextHoveredColor: {r: 0.69803923, g: 0.80784315, b: 0.9647059, a: 1}
-  showAbilityAlphaTime: 1
-  showAbilityTranslateTime: 1
-  showAbilityTranslateDist: 1
-  damageIndicatorFlickerCount: 2
-  damageIndicatorFlickerTime: 0.125
-  damageIndicatorMinAlpha: 0.5
+  showAbilityAlphaTime: 2
+  showAbilityTranslateTime: 0.5
+  showAbilityTranslateDist: 0.75
+  damageIndicatorFlickerCount: 1
+  damageIndicatorFlickerTime: 0
+  damageIndicatorMinAlpha: 0.9
   fightDelay: 0.5
   attackDelayForBuff: 0.5
   statChangeAnimTime: 0.3
@@ -53,35 +55,44 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 1
-      inSlope: 1.3209683
-      outSlope: 1.3209683
+      inSlope: 0.8000002
+      outSlope: 0.8000002
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.15236785
-      value: 1.2012731
-      inSlope: 0.20768818
-      outSlope: 0.20768818
-      tangentMode: 34
+      time: 0.25
+      value: 1.2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.6563127
-      value: 0.7449047
-      inSlope: -0.081680536
-      outSlope: -0.081680536
-      tangentMode: 34
+      time: 0.5
+      value: 0.75
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.75
+      value: 1.2
+      inSlope: 0.6581142
+      outSlope: 0.6581142
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0.74223083
-      outSlope: 0.74223083
+      inSlope: -0.8000002
+      outSlope: -0.8000002
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334

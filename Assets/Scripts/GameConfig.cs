@@ -11,7 +11,9 @@ namespace DefaultNamespace {
         public float attackHomeDelay = 2f;
         public float gameOverDelay = 2f;
         
+        public int dupeAbilityLimit = 3;
         public int numRollsInTurn = 3;
+        public float autoTurnDelay = 1f;
 
         public float tooltipHoverDelay = 2f;
         public float tooltipEnterTime = 0.2f;

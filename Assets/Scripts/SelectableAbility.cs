@@ -41,6 +41,7 @@ namespace DefaultNamespace {
         private Canvas _iconCanvas;
         private Canvas _tooltipCanvas;
         private Image _icon;
+        private BoxCollider2D _collider;
 
         public AbilityDeckSpace tmpSpace2;
         public AbilityDeckSpace selectedSpace;
@@ -64,6 +65,7 @@ namespace DefaultNamespace {
             _iconCanvas = transform.Find("IconCanvas").GetComponent<Canvas>();
             _tooltipCanvas = transform.Find("TooltipCanvas").GetComponent<Canvas>();
             _icon = _iconCanvas.transform.Find("Icon").GetComponent<Image>();
+            _collider = GetComponent<BoxCollider2D>();
         }
 
         private void OnValidate() {
@@ -89,12 +91,13 @@ namespace DefaultNamespace {
             var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             transform.position = new Vector2(worldPos.x, worldPos.y);
             
-            _iconCanvas.sortingOrder = 5;
+            // _iconCanvas.sortingOrder = 5;
         }
 
         private void OnTriggerEnter2D(Collider2D col) {
             if (!CanEdit()) return;
             if (!col.CompareTag("DeckSpace")) return;
+            if (state == SelectableState.Unselected) return;
 
             var deckSpace = col.GetComponent<AbilityDeckSpace>();
 
@@ -131,7 +134,7 @@ namespace DefaultNamespace {
             if (deckSpace != tmpSpace2) return;
             
             // exited all possible spaces
-            HoverScale();
+            SelectedScale();
             tmpSpace2 = null;
         }
 
@@ -148,6 +151,8 @@ namespace DefaultNamespace {
 
                 selectedSpace = null;
                 state = SelectableState.Selecting;
+                transform.SetParent(null);
+                SetSortingOrder(8);
                 
                 DeckSpaceHoverScale();
                 
@@ -158,7 +163,9 @@ namespace DefaultNamespace {
             SelectableAbility selectingAbility = go.GetComponent<SelectableAbility>();
             selectingAbility.state = SelectableState.Selecting;
             _selectingAbility = selectingAbility;
+            _selectingAbility.SetSortingOrder(8);
             _selectingAbility.HoverScale();
+            CombatManager.Instance.playerAbilityManager.HideIfLastAbility(ability);
         }
 
 
@@ -182,8 +189,9 @@ namespace DefaultNamespace {
                 else {
                     LeanTween.cancel(tooltipShowTweenId);
                     LeanTween.cancel(scaleTweenId);
-                    Destroy(selectingAbility.gameObject);
                     MasterAudio.PlaySoundAndForget("negative_alert_1");
+                    CombatManager.Instance.playerAbilityManager.EnableSelectableAbility(ability);
+                    Destroy(selectingAbility.gameObject);
                 }
                 return;
             }
@@ -210,6 +218,16 @@ namespace DefaultNamespace {
             tooltipShowTweenId = LeanTween.delayedCall(Config.tooltipHoverDelay, ShowTooltip).id;
         }
 
+        public void Disable() {
+            _iconCanvas.enabled = false;
+            _collider.enabled = false;
+        }
+
+        public void Enable() {
+            _iconCanvas.enabled = true;
+            _collider.enabled = true;
+        }
+
         private void ShowTooltip() {
             LeanTween.scale(_tooltipCanvas.gameObject, Vector3.one, Config.tooltipEnterTime);
             tooltipShowing = true;
@@ -231,25 +249,26 @@ namespace DefaultNamespace {
             selectedSpace = tmpSpace2;
 
             if (tmpSpace2.selectedAbility) {
+                CombatManager.Instance.playerAbilityManager.EnableSelectableAbility(tmpSpace2.selectedAbility.ability);
                 Destroy(tmpSpace2.selectedAbility.gameObject);
                 tmpSpace2.ClearAbility();
+                
             }
 
             MasterAudio.PlaySoundAndForget("ability_place");
             
             tmpSpace2.SetAbility(this);
-            
-            _iconCanvas.sortingOrder = 3;
+            transform.SetParent(tmpSpace2.transform);
+            SetSortingOrder(6);
         }
 
         public void SelectedScale() {
             LeanTween.cancel(scaleTweenId);
             scaleTweenId = LeanTween.scale(
-                gameObject, Vector3.one * 0.9f, Config.abilityHoverTime
+                gameObject, Vector3.one, Config.abilityHoverTime
             ).id;
         }
         
-
         public void DeckSpaceHoverScale() {
             LeanTween.cancel(scaleTweenId);
             scaleTweenId = LeanTween.scale(
@@ -262,6 +281,11 @@ namespace DefaultNamespace {
             scaleTweenId = LeanTween.scale(
                 gameObject, Vector3.one * Config.abilityHoverScale, Config.abilityHoverTime
             ).id;
+        }
+
+        public void SetSortingOrder(int order) {
+            _iconCanvas.sortingOrder = order;
+            _tooltipCanvas.sortingOrder = order + 1;
         }
     }
     

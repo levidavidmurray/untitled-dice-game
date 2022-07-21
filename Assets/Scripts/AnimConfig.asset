@@ -19,35 +19,53 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 1
-      inSlope: 1.3209683
-      outSlope: 1.3209683
+      inSlope: 0.49562842
+      outSlope: 0.49562842
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.15236785
-      value: 1.2012731
-      inSlope: 0.20768818
-      outSlope: 0.20768818
-      tangentMode: 34
+      time: 0.16421509
+      value: 1.0813897
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.6563127
-      value: 0.7449047
-      inSlope: -0.081680536
-      outSlope: -0.081680536
-      tangentMode: 34
+      time: 0.3627472
+      value: 0.93310547
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.5133708
+      value: 1.0406702
+      inSlope: 0.90091556
+      outSlope: 0.90091556
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.75
+      value: 1.2
+      inSlope: 0.6581142
+      outSlope: 0.6581142
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0.74223083
-      outSlope: 0.74223083
+      inSlope: -0.8000002
+      outSlope: -0.8000002
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -184,51 +202,51 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  takeDamageTime: 0.4
+  takeDamageTime: 0.2
   takeDamageScaleAnimCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 1
-      inSlope: -0.6588523
-      outSlope: -0.6588523
+      inSlope: -0.11878669
+      outSlope: -0.11878669
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.1957516
-      value: 0.8710286
-      inSlope: -0.120148376
-      outSlope: -0.120148376
-      tangentMode: 34
+      time: 0.21046108
+      value: 0.975
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.433913
+    - serializedVersion: 3
+      time: 0.5
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.5122855
-      value: 1.0035156
-      inSlope: 0.005061522
-      outSlope: 0.005061522
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.7650178
-      value: 0.9002915
-      inSlope: 0.007945567
-      outSlope: 0.007945567
-      tangentMode: 34
+      time: 0.75
+      value: 0.975
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0.42432362
-      outSlope: 0.42432362
+      inSlope: 0.099999905
+      outSlope: 0.099999905
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -236,3 +254,93 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  startingDeckUnlockDelay: 0.5
+  deckLockDist: 1.2
+  deckLockFightDelay: 0.75
+  deckLockAnimTime: 0.4
+  deckLockAnimCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0.45388857
+      outSlope: 0.45388857
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.60748696
+      value: 0.27573138
+      inSlope: 2.2128873
+      outSlope: 2.2128873
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.8133262
+      value: 1.0933013
+      inSlope: 1.7360384
+      outSlope: 1.7360384
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: -0.4998092
+      outSlope: -0.4998092
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  deckUnlockAnimTime: 0.4
+  deckUnlockAnimCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0.45388857
+      outSlope: 0.45388857
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.60748696
+      value: 0.27573138
+      inSlope: 2.2128873
+      outSlope: 2.2128873
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.8133262
+      value: 1.0933013
+      inSlope: 1.7360384
+      outSlope: 1.7360384
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: -0.4998092
+      outSlope: -0.4998092
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  turnCounterFadeTime: 0.3

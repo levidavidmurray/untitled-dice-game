@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using DarkTonic.MasterAudio;
 using TMPro;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace DefaultNamespace {
 
@@ -37,7 +35,10 @@ namespace DefaultNamespace {
 
         public Fighter PlayerFighter;
         public Fighter FoeFighter;
-        public DiceRoller diceRoller;
+        public DiceRoller playerDiceRoller;
+        public DiceRoller enemyDiceRoller;
+        public PlayerAbilityDeck playerAbilityDeck;
+        public AbilityManager playerAbilityManager;
         public CanvasGroup abilitiesCanvasGroup;
         public TMP_Text rollText;
         public TMP_Text levelText;
@@ -63,11 +64,11 @@ namespace DefaultNamespace {
             FoeFighter.Foe = PlayerFighter;
             CurState = GameState.WaitingReady;
 
-            diceRoller.HandleMouseUp = HandleDiceRoll;
-            diceRoller.HandleMouseEnter += () => {
+            playerDiceRoller.HandleMouseUp = HandleDiceRoll;
+            playerDiceRoller.HandleMouseEnter += () => {
                 rollIsHovered = true;
             };
-            diceRoller.HandleMouseExit += () => {
+            playerDiceRoller.HandleMouseExit += () => {
                 rollIsHovered = false;
             };
             
@@ -124,37 +125,68 @@ namespace DefaultNamespace {
 
         public void NextTurn() {
             if (!PlayerFighter.IsReady() || !FoeFighter.IsReady()) return;
-            
-            StartCoroutine(RollDice());
+
+            LeanTween.delayedCall(AnimConfig.deckLockFightDelay, RollDice);
         }
 
         public void HandleDiceRoll() {
-            
-            var state = CurState;
-            
             if (!CanRoll()) return;
+
+            if (CurState == GameState.WaitingTurn) {
+                playerAbilityDeck.LockDeckAnim(() => {
+                    ShowTurnCounter();
+                    NextTurn();
+                });
+            }
             
-            if (state == GameState.WaitingRoll) {
-                StartCoroutine(RollDice());
+            CurState = GameState.Playing;
+        }
+
+        public void RollDice() {
+            
+            int playerDiceRoll = playerDiceRoller.RollDice();
+            MasterAudio.PlaySoundAndForget("dice_roll");
+            
+            int enemyDiceRoll = enemyDiceRoller.RollDice();
+            MasterAudio.PlaySoundAndForget("dice_roll");
+
+            LeanTween.delayedCall(Config.fightDelay, () => {
+                Fight(playerDiceRoll, enemyDiceRoll);
+                _RollsToNextTurn--;
+                UpdateTurnCounter();
+            });
+        }
+
+        public void Fight(int playerDiceRoll, int enemyDiceRoll) {
+            
+            PlayerFighter.GetAbilityAtIndex(playerDiceRoll);
+            FoeFighter.GetAbilityAtIndex(enemyDiceRoll);
+            
+            PlayerFighter.ShowActiveAbility();
+            FoeFighter.ShowActiveAbility();
+
+            // Both attacking or both buffing
+            if ((PlayerFighter.IsAttacking && FoeFighter.IsAttacking) || (!PlayerFighter.IsAttacking && !FoeFighter.IsAttacking)) {
+                PlayerFighter.UseActiveAbility();
+                FoeFighter.UseActiveAbility();
                 return;
             }
 
-            if (state == GameState.WaitingTurn) {
-                NextTurn();
+            Fighter firstFighter = PlayerFighter;
+            Fighter secondFighter = FoeFighter;
+
+            // Player attacking, Foe buffing
+            // Player waits for Foe buff
+            if (PlayerFighter.IsAttacking) {
+                firstFighter = FoeFighter;
+                secondFighter = PlayerFighter;
             }
-        }
-
-        public IEnumerator RollDice() {
-            CurState = GameState.Playing;
             
-            int diceRoll = diceRoller.RollDice();
-            MasterAudio.PlaySoundAndForget("dice_roll");
-
-            yield return new WaitForSeconds(Config.fightDelay);
-            Fight(diceRoll);
+            firstFighter.UseActiveAbility();
             
-            _RollsToNextTurn--;
-            UpdateTurnCounter();
+            // Fighter who is attacking waits for opponent buff
+            LeanTween.delayedCall(Config.attackDelayForBuff, secondFighter.UseActiveAbility);
+            
         }
 
         public void OnAbilityComplete() {
@@ -198,13 +230,16 @@ namespace DefaultNamespace {
                     
                     // allow abilities change after 3 turns
                     if (_RollsToNextTurn <= 0 || didDie) {
-                        _RollsToNextTurn = Config.numRollsInTurn;
-                        CurState = GameState.WaitingTurn;
-                        UpdateTurnCounter();
+                        HideTurnCounter();
+                        playerAbilityDeck.UnlockDeckAnim(() => {
+                            CurState = GameState.WaitingTurn;
+                            _RollsToNextTurn = Config.numRollsInTurn;
+                            UpdateTurnCounter();
+                        });
                         return;
                     }
-                    
-                    CurState = GameState.WaitingRoll;
+
+                    LeanTween.delayedCall(Config.autoTurnDelay, RollDice);
                 });
             };
             
@@ -234,6 +269,19 @@ namespace DefaultNamespace {
             rollsToNextTurnText.text = $"{_RollsToNextTurn} TURNS LOCKED";
         }
 
+        private void ShowTurnCounter() {
+            LeanTween.value(0f, 1f, AnimConfig.turnCounterFadeTime).setOnUpdate(value => {
+                rollsToNextTurnText.alpha = value;
+            });
+        }
+        
+        private void HideTurnCounter() {
+            LeanTween.value(1f, 0f, AnimConfig.turnCounterFadeTime).setOnUpdate(value => {
+                rollsToNextTurnText.alpha = value;
+            });
+        }
+        
+
         private void UpdateLevelCounter() {
             levelText.text = $"LEVEL {_currentLevel}/{Config.maxLevel}";
             OnLevelChange?.Invoke(_currentLevel);
@@ -242,11 +290,6 @@ namespace DefaultNamespace {
         private void NextLevel() {
             _currentLevel++;
             ResetState();
-        }
-
-        private void AttackHome(Fighter attacker) {
-            Fighter foe = attacker.Foe;
-
         }
 
         private void LevelComplete() {
@@ -277,46 +320,19 @@ namespace DefaultNamespace {
             GameUI.Instance.resultLabel.text = "PAUSED";
             PlayerFighter.SetupFighter();
             FoeFighter.SetupFighter();
+            rollsToNextTurnText.alpha = 0;
             _RollsToNextTurn = Config.numRollsInTurn;
             UpdateTurnCounter();
             UpdateLevelCounter();
+
+            LeanTween.delayedCall(AnimConfig.startingDeckUnlockDelay, () => {
+                playerAbilityDeck.UnlockDeckAnim(() => { });
+            });
         }
 
         private void RestartGame() {
             _currentLevel = 1;
             ResetState();
-        }
-
-        public void Fight(int diceRoll) {
-            
-            PlayerFighter.GetAbilityAtIndex(diceRoll);
-            FoeFighter.GetAbilityAtIndex(diceRoll);
-            
-            PlayerFighter.ShowActiveAbility();
-            FoeFighter.ShowActiveAbility();
-
-            // Both attacking or both buffing
-            if ((PlayerFighter.IsAttacking && FoeFighter.IsAttacking) || (!PlayerFighter.IsAttacking && !FoeFighter.IsAttacking)) {
-                PlayerFighter.UseActiveAbility();
-                FoeFighter.UseActiveAbility();
-                return;
-            }
-
-            Fighter firstFighter = PlayerFighter;
-            Fighter secondFighter = FoeFighter;
-
-            // Player attacking, Foe buffing
-            // Player waits for Foe buff
-            if (PlayerFighter.IsAttacking) {
-                firstFighter = FoeFighter;
-                secondFighter = PlayerFighter;
-            }
-            
-            firstFighter.UseActiveAbility();
-            
-            // Fighter who is attacking waits for opponent buff
-            LeanTween.delayedCall(Config.attackDelayForBuff, secondFighter.UseActiveAbility);
-            
         }
         
     }
