@@ -16,9 +16,10 @@ namespace DefaultNamespace {
 
         private void Start() {
             CombatManager.Instance.OnLevelChange += (level) => {
-                levelOnePawn.SetActive(level == 1);
-                levelTwoPawn.SetActive(level == 2);
-                levelThreePawn.SetActive(level == 3);
+                // TODO: Change level fighter
+                // levelOnePawn.SetActive(level == 1);
+                // levelTwoPawn.SetActive(level == 2);
+                // levelThreePawn.SetActive(level == 3);
             };
         }
     }

@@ -37,9 +37,9 @@ MonoBehaviour:
   abilityHoverTime: 0.05
   deckEditDisabledOpacity: 0.3
   deckSpaceAbilityHoverScale: 0.9
-  rollTextDisabledColor: {r: 0.22352943, g: 0.36862746, b: 0.5764706, a: 0.23529412}
-  rollTextUnhoveredColor: {r: 0.22352943, g: 0.36862746, b: 0.5764706, a: 1}
-  rollTextHoveredColor: {r: 0.69803923, g: 0.80784315, b: 0.9647059, a: 1}
+  rollTextDisabledColor: {r: 0.098039225, g: 0.46274513, b: 0.8235295, a: 0.23529412}
+  rollTextUnhoveredColor: {r: 0.3921569, g: 0.70980394, b: 0.96470594, a: 1}
+  rollTextHoveredColor: {r: 0.89019614, g: 0.9490197, b: 0.9921569, a: 1}
   showAbilityAlphaTime: 2
   showAbilityTranslateTime: 0.5
   showAbilityTranslateDist: 0.75
@@ -188,3 +188,4 @@ MonoBehaviour:
   maxDuplicateRolls: 2
   debugNoDamage: 0
   debugKeepUnselectedAbility: 0
+  debugForceAbilityOnRightClick: 1

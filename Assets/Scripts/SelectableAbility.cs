@@ -78,7 +78,16 @@ namespace DefaultNamespace {
             // var rawData = System.IO.File.ReadAllBytes(filename);
             // Texture2D tex = new Texture2D(2, 2);
             // tex.LoadImage(rawData);
-            _icon.sprite = Resources.Load<Sprite>($"Sprites/ICON_{abilityName}");
+            Sprite[] sprites = Resources.LoadAll<Sprite>($"Sprites/Abilities");
+            Sprite sprite = null;
+            foreach (Sprite _sprite in sprites) {
+                if (_sprite.name == $"ICON_{abilityName}") {
+                    sprite = _sprite;
+                    break;
+                }
+            }
+
+            _icon.sprite = sprite;
 
             var tooltipText = _tooltipCanvas.transform.Find("TooltipText").GetComponent<TMP_Text>();
             tooltipText.text = AbilityNameMap[ability].tooltip;
@@ -139,6 +148,14 @@ namespace DefaultNamespace {
         }
 
         public void OnPointerDown(PointerEventData eventData) {
+
+            if (eventData.button == PointerEventData.InputButton.Right) {
+                if (Config.debugForceAbilityOnRightClick)
+                    CombatManager.Instance.DebugForceAbility(ability);
+
+                return;
+            }
+            
             if (!CanEdit()) return;
             
             HideTooltip();
@@ -160,6 +177,7 @@ namespace DefaultNamespace {
             }
             
             var go = Instantiate(this);
+            go.transform.position = transform.position;
             SelectableAbility selectingAbility = go.GetComponent<SelectableAbility>();
             selectingAbility.state = SelectableState.Selecting;
             _selectingAbility = selectingAbility;

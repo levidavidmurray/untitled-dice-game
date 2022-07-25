@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using DarkTonic.MasterAudio;
 using TMPro;
 using UnityEngine;
@@ -50,11 +51,14 @@ namespace DefaultNamespace {
         private int _abilitiesWaitingToComplete = ABILITIES_TO_COMPLETE;
         
         private bool rollIsHovered;
+        private bool _firstTutorialHidden;
 
         public Action<int> OnLevelChange;
 
         private int _currentLevel = 1;
 
+        public Dictionary<Ability, Sprite> abilityUseSpriteMap = new();
+        
         public GameState CurState { get; private set; }
 
         public int CurrentLevel => _currentLevel;
@@ -80,14 +84,30 @@ namespace DefaultNamespace {
             else {
                 Instance = this;
             }
+
+            Sprite[] abilityUseSprites = Resources.LoadAll<Sprite>("Sprites/ICON_Abilities");
+
+            foreach (Ability ability in Enum.GetValues(typeof(Ability))) {
+                if (ability == Ability.EMPTY) continue;
+                string abilityName = SelectableAbility.AbilityNameMap[ability].name;
+
+                foreach (Sprite sprite in abilityUseSprites) {
+                    if (sprite.name != $"USE_{abilityName}") continue;
+                    
+                    abilityUseSpriteMap.Add(ability, sprite);
+                    break;
+                }
+            }
+            
         }
 
         private void Start() {
             GameUI.Instance.quitButton.clicked += Application.Quit;
-            GameUI.Instance.playAgainButton.clicked += RestartGame;
+            GameUI.Instance.restartButton.clicked += RestartGame;
             GameUI.Instance.nextLevelButton.clicked += NextLevel;
-
-            RestartGame();
+            GameUI.Instance.playButton.clicked += RestartGame;
+            
+            GameUI.Instance.ShowTutorial();
         }
 
         private void Update() {
@@ -101,6 +121,13 @@ namespace DefaultNamespace {
                     GameUI.Instance.ShowMenu();
                     MasterAudio.PlaySoundAndForget("Space_Page_Transition_2");
                 }
+            }
+
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D hit2 = Physics2D.Raycast(mousePos, Vector2.zero);
+
+            if (hit2.collider != null) {
+                print($"HIT: {hit2.collider.name}");
             }
             
             if (!PlayerFighter.IsReady()) {
@@ -185,7 +212,7 @@ namespace DefaultNamespace {
             firstFighter.UseActiveAbility();
             
             // Fighter who is attacking waits for opponent buff
-            LeanTween.delayedCall(Config.attackDelayForBuff, secondFighter.UseActiveAbility);
+            LeanTween.delayedCall(Config.attackDelayForBuff, () => secondFighter.UseActiveAbility());
             
         }
 
@@ -264,6 +291,13 @@ namespace DefaultNamespace {
             
             onTurnComplete();
         }
+
+        public void DebugForceAbility(Ability ability) {
+            if (!Config.debugForceAbilityOnRightClick) return;
+
+            PlayerFighter.activeAbility = ability;
+            PlayerFighter.UseActiveAbility(true);
+        }
         
         private void UpdateTurnCounter() {
             rollsToNextTurnText.text = $"{_RollsToNextTurn} TURNS LOCKED";
@@ -283,7 +317,7 @@ namespace DefaultNamespace {
         
 
         private void UpdateLevelCounter() {
-            levelText.text = $"LEVEL {_currentLevel}/{Config.maxLevel}";
+            GameUI.Instance.levelText.text = $"LEVEL {_currentLevel}/{Config.maxLevel}";
             OnLevelChange?.Invoke(_currentLevel);
         }
 
@@ -332,6 +366,7 @@ namespace DefaultNamespace {
 
         private void RestartGame() {
             _currentLevel = 1;
+            GameUI.Instance.playButton.clicked -= RestartGame;
             ResetState();
         }
         

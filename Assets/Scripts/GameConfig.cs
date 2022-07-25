@@ -65,8 +65,12 @@ namespace DefaultNamespace {
 
         public int maxDuplicateRolls = 2;
 
+        public float buttonHoverScale = 1.1f;
+        public float buttonDownScale = 0.95f;
+
         // debug
         public bool debugNoDamage = false;
         public bool debugKeepUnselectedAbility = false;
+        public bool debugForceAbilityOnRightClick = false;
     }
 }

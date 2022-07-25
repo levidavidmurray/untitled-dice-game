@@ -11,9 +11,9 @@ namespace DefaultNamespace {
     
     public class Fighter : MonoBehaviour {
         
-        [SerializeField] private int _Health = 3;
-        [SerializeField] private int _Attack = 1;
-        [SerializeField] private int _Defense = 0;
+        private int _Health = 3;
+        private int _Attack = 1;
+        private int _Defense = 0;
         [SerializeField] private AbilityDeck abilityDeck;
         [SerializeField] private ParticleSystem hurtParticles;
         
@@ -27,9 +27,9 @@ namespace DefaultNamespace {
 
         public TMP_Text HomeHealthDisplay;
         
-        public RectTransform defenseStatDisplay;
-        public RectTransform attackStatDisplay;
-        public RectTransform healthStatDisplay;
+        public Transform defenseStat;
+        public Transform attackStat;
+        public Transform healthStat;
 
         public Fighter Foe;
         
@@ -40,21 +40,36 @@ namespace DefaultNamespace {
 
         public Ability activeAbility = Ability.EMPTY;
 
-        public RawImage pawnImage;
+        public Sprite faceDefault;
+        public Sprite faceHurt;
+        public SpriteRenderer faceSR;
+
+        private SpriteRenderer[] _allSRs;
 
         private Action onAttackCollision;
+        private Vector3 _spawnPos;
 
         private void Awake() {
             // for (int i = 0; i < _Abilities.Length; i++) {
             //     _Abilities[i] = Ability.EMPTY;
             // }
 
-            _canvasGroup = transform.Find("Canvas").GetComponent<CanvasGroup>();
-            _canvas = transform.Find("Canvas").GetComponent<Canvas>();
+            // _canvasGroup = transform.Find("Canvas").GetComponent<CanvasGroup>();
+            // _canvas = transform.Find("Canvas").GetComponent<Canvas>();
             _collider = GetComponent<CircleCollider2D>();
+            SpriteRenderer[] SRs = GetComponentsInChildren<SpriteRenderer>();
+            _allSRs = new SpriteRenderer[SRs.Length - 1];
+            int i = 0;
+            foreach (var sr in SRs) {
+                if (sr.transform == usedAbility.transform) continue;
+
+                _allSRs[i] = sr;
+                i++;
+            }
         }
 
         private void Start() {
+            _spawnPos = transform.position;
             SetupFighter();
         }
 
@@ -106,7 +121,14 @@ namespace DefaultNamespace {
         }
 
         public void SetOpacity(float opacity) {
-            _canvasGroup.alpha = opacity;
+            foreach (SpriteRenderer sr in _allSRs) {
+                Color c = sr.color;
+                sr.color = new Color(c.r, c.g, c.b, opacity);
+            }
+
+            HealthDisplay.alpha = opacity;
+            AttackDisplay.alpha = opacity;
+            DefenseDisplay.alpha = opacity;
         }
 
         private void OnTriggerEnter2D(Collider2D col) {
@@ -128,7 +150,7 @@ namespace DefaultNamespace {
         public int TakeDamage(int dmg) {
             if (dmg <= _Defense) {
                 MasterAudio.PlaySoundAndForget("Negative3");
-                StatChangeEffect(defenseStatDisplay);
+                StatChangeEffect(defenseStat);
                 return _Health;
             }
             
@@ -139,10 +161,10 @@ namespace DefaultNamespace {
             if (Config.debugNoDamage) _Health += dmgApplied;
             
             if (dmgApplied > 0) {
-                DamageFlicker((opacity) => _canvasGroup.alpha = opacity, transform);
+                DamageFlicker(SetOpacity, transform);
                 MasterAudio.PlaySoundAndForget("Sword_Kill");
                 hurtParticles.Play();
-                StatChangeEffect(healthStatDisplay);
+                StatChangeEffect(healthStat);
             }
             
             return _Health;
@@ -158,7 +180,7 @@ namespace DefaultNamespace {
         }
 
         public void AttackHome(Action onAttackComplete) {
-            _canvas.sortingOrder = 4;
+            // _canvas.sortingOrder = 4;
             ChargeAttackAnim(AnimConfig.attackHomeAnimCurve, AnimConfig.attackHomeAnimTime, onAttackComplete);
             usedAbility.ShowAbility(Ability.Attack);
 
@@ -167,7 +189,7 @@ namespace DefaultNamespace {
             };
         }
 
-        public void StatChangeEffect(RectTransform statDisplay) {
+        public void StatChangeEffect(Transform statDisplay) {
             LeanTween.value(0f, 1f, AnimConfig.statChangeAnimTime).setOnUpdate((float value) => {
                 statDisplay.localScale = Vector3.one * AnimConfig.statChangeAnimCurve.Evaluate(value);
             });
@@ -194,28 +216,31 @@ namespace DefaultNamespace {
 
         public void DecreaseAttack() {
             _Attack = Mathf.Max(Config.minAttack, _Attack - 1);
-            StatChangeEffect(attackStatDisplay);
+            StatChangeEffect(attackStat);
         }
 
         public void DecreaseDefense() {
             _Defense = Mathf.Max(Config.minDefense, _Defense - 1);
-            StatChangeEffect(defenseStatDisplay);
+            StatChangeEffect(defenseStat);
         }
 
         public bool IsPlayer => this == CombatManager.Instance.PlayerFighter;
 
-        private void AttackEnemy() {
+        private void AttackEnemy(bool forced = false) {
             AnimationCurve attackAnimCurve = AnimConfig.attackFullAnimCurve;
             float attackAnimTime = AnimConfig.attackFullAnimTime;
-            _canvas.sortingOrder = 4;
+            // _canvas.sortingOrder = 4;
             
             if (Foe.IsAttacking) {
                 attackAnimCurve = AnimConfig.attackHalfAnimCurve;
                 attackAnimTime = AnimConfig.attackHalfAnimTime;
-                _canvas.sortingOrder = IsPlayer ? 5 : 4;
+                // _canvas.sortingOrder = IsPlayer ? 5 : 4;
             }
             
-            ChargeAttackAnim(attackAnimCurve, attackAnimTime, CombatManager.Instance.OnAbilityComplete);
+            ChargeAttackAnim(attackAnimCurve, attackAnimTime, () => {
+                if (forced) return;
+                CombatManager.Instance.OnAbilityComplete();
+            });
             
             onAttackCollision = () => Foe.TakeDamage(_Attack);
         }
@@ -228,39 +253,39 @@ namespace DefaultNamespace {
                 var yPos = origPos.y + (attackAnimCurve.Evaluate(value) * atkDir);
                 transform.localPosition = new Vector2(origPos.x, yPos);
             }).setOnComplete(() => {
-                transform.localPosition = origPos;
-                _canvas.sortingOrder = 3;
+                transform.position = _spawnPos;
+                // _canvas.sortingOrder = 3;
                 onAnimComplete?.Invoke();
             });
         }
 
-        public void UseActiveAbility() {
-            ApplyAbility(activeAbility);
+        public void UseActiveAbility(bool forced = false) {
+            ApplyAbility(activeAbility, forced);
         }
 
         public void ShowActiveAbility() {
             usedAbility.ShowAbility(activeAbility);
         }
 
-        public void ApplyAbility(Ability ability) {
+        public void ApplyAbility(Ability ability, bool forced = false) {
             
             PlayAbilitySound(ability);
             
             switch (ability) {
                 case Ability.Attack:
-                    AttackEnemy();
+                    AttackEnemy(forced);
                     break;
                 case Ability.AttackUp:
                     _Attack = Mathf.Min(Config.maxAttack, _Attack + 1);
-                    StatChangeEffect(attackStatDisplay);
+                    StatChangeEffect(attackStat);
                     break;
                 case Ability.DefenseUp:
                     _Defense = Mathf.Min(Config.maxDefense, _Defense + 1);
-                    StatChangeEffect(defenseStatDisplay);
+                    StatChangeEffect(defenseStat);
                     break;
                 case Ability.HealthUp:
                     _Health = Mathf.Min(Config.maxHealth, _Health + 1);
-                    StatChangeEffect(healthStatDisplay);
+                    StatChangeEffect(healthStat);
                     break;
                 case Ability.FoeAttackDown:
                     Foe.DecreaseAttack();
@@ -272,11 +297,10 @@ namespace DefaultNamespace {
             
             UpdateStatsDisplay();
             Foe.UpdateStatsDisplay();
-
-            if (ability != Ability.Attack) {
+            
+            if (activeAbility != Ability.Attack && !forced) {
                 CombatManager.Instance.OnAbilityComplete();
             }
-            
         }
 
         void PlayAbilitySound(Ability ability) {

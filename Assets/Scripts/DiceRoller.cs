@@ -20,7 +20,7 @@ namespace DefaultNamespace {
         private GameConfig Config => CombatManager.Instance.Config;
 
         private void UpdateDice(int faceNum) {
-            diceSpriteRenderer.sprite = Resources.Load<Sprite>($"Sprites/dice_{faceNum}");
+            diceSpriteRenderer.sprite = Resources.Load<Sprite>($"Sprites/dice-{faceNum}");
         }
 
         public int RollDice() {
